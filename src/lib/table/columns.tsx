@@ -1,21 +1,11 @@
 import { type ColumnDef } from '@tanstack/react-table';
 
 import { Checkbox } from '@/components/ui/checkbox';
+import type { Database } from '@/types/supabase';
 
-type InventoryInspection = {
-  id: number;
-  clientName: string;
-  inspectionCode: string;
-  inspectionCondition: string;
-  inspectionName: string;
-  quantity: number;
-  registrant: string;
-  registrationDate: string;
-  sku: string;
-  status: string;
-};
-
-export const columns: ColumnDef<InventoryInspection>[] = [
+export const columns: ColumnDef<
+  Database['public']['Tables']['tanstack_query_search']['Row']
+>[] = [
   {
     id: 'select',
     header: ({ table }) => (

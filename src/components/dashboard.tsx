@@ -34,7 +34,7 @@ export function Dashboard() {
             </div>
             <DropDownMenu onLogout={onLogoutClick} />
           </header>
-          {/* <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
+          <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
             <div className="rounded-lg border p-2 shadow-sm">
               <div className="flex gap-3 p-4">
                 <Search search={search} onSearchChange={onSearchChange} />
@@ -44,14 +44,14 @@ export function Dashboard() {
                 />
               </div>
               <DataTable
-                data={stockList.data.result}
+                data={stockList.data.data}
                 total={stockList.data.count ?? 0}
                 columns={columns}
                 pagination={pagination}
                 onPaginationChange={onPaginationChange}
               />
             </div>
-          </main> */}
+          </main>
         </div>
       </div>
     );

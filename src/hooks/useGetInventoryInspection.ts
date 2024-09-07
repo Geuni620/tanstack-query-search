@@ -6,11 +6,17 @@ import {
   INVENTORY_INSPECTION,
   inventoryInspectionKeys,
 } from '@/hooks/queryKey';
+import type { Database } from '@/types/supabase';
 import { supabase } from '@/utils/supabase';
 
 const getInventoryInspection = async ({
   queryKey: [{ page, size, search }],
-}: QueryFunctionContext<ReturnType<typeof inventoryInspectionKeys.list>>) => {
+}: QueryFunctionContext<
+  ReturnType<typeof inventoryInspectionKeys.list>
+>): Promise<{
+  data: Database['public']['Tables']['tanstack_query_search']['Row'][];
+  count: number | null;
+}> => {
   const start = page * size;
   const end = start + size - 1;
   const query = supabase
@@ -25,13 +31,13 @@ const getInventoryInspection = async ({
     );
   }
 
-  const { data: result, count, error } = await query;
+  const { data, count, error } = await query;
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return { result: camelcaseKeys(result, { deep: true }), count };
+  return { data, count };
 };
 
 type Props = {
@@ -48,5 +54,11 @@ export const useGetInventoryInspection = ({ page, size, search }: Props) => {
       search,
     }),
     queryFn: getInventoryInspection,
+    select: ({ data, count }) => {
+      return {
+        data: data.map((item) => camelcaseKeys(item)),
+        count: count,
+      };
+    },
   });
 };
