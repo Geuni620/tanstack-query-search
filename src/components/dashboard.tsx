@@ -44,7 +44,7 @@ export function Dashboard() {
                 />
               </div>
               <DataTable
-                data={stockList.data}
+                data={stockList.data.result}
                 total={stockList.data.count ?? 0}
                 columns={columns}
                 pagination={pagination}

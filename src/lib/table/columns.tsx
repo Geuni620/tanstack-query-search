@@ -1,102 +1,79 @@
 import { type ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useLogin } from '@/hooks/useLogin';
-import { useTaskDeleteMutation } from '@/hooks/useTaskDeleteMutation';
-import { type TaskProps } from '@/hooks/useTaskGetQuery';
 
-export const columns: ColumnDef<TaskProps>[] = [
+type InventoryInspection = {
+  id: number;
+  clientName: string;
+  inspectionCode: string;
+  inspectionCondition: string;
+  inspectionName: string;
+  quantity: number;
+  registrant: string;
+  registrationDate: string;
+  sku: string;
+  status: string;
+};
+
+export const columns: ColumnDef<InventoryInspection>[] = [
   {
-    accessorKey: 'done',
+    id: 'select',
     header: ({ table }) => (
       <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
+        checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
+        aria-label="모두 선택"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
+        aria-label="행 선택"
       />
     ),
+    enableSorting: false,
+    enableHiding: false,
   },
   {
-    accessorKey: 'author',
-    header: 'Author',
+    accessorKey: 'clientName',
+    header: '화주사명',
+  },
+  {
+    accessorKey: 'inspectionCode',
+    header: '점검 코드',
+  },
+  {
+    accessorKey: 'inspectionCondition',
+    header: '점검 조건',
+  },
+  {
+    accessorKey: 'inspectionName',
+    header: '점검명',
+  },
+  {
+    accessorKey: 'quantity',
+    header: '수량',
+  },
+  {
+    accessorKey: 'registrant',
+    header: '등록자',
+  },
+  {
+    accessorKey: 'registrationDate',
+    header: '등록일',
     cell: ({ row }) => {
-      const userId = row.original.userId;
-      const { session } = useLogin();
+      const date = new Date(row.getValue('registrationDate'));
 
-      const isMyTask = session?.user?.id === userId;
-      const authorText = isMyTask ? '내가 작성함' : '내가 작성안함';
-      const textColor = isMyTask ? 'text-blue-600' : 'text-red-600';
-
-      return <div className={`font-medium ${textColor}`}>{authorText}</div>;
+      return date.toLocaleDateString('ko-KR');
     },
   },
   {
-    accessorKey: 'task',
-    header: 'Task',
-    cell: ({ row }) => {
-      return <div>{row.getValue('task')}</div>;
-    },
+    accessorKey: 'sku',
+    header: 'SKU',
   },
   {
-    accessorKey: 'notes',
-    header: 'Notes',
-    cell: ({ row }) => <p>{row.getValue('notes')}</p>,
-  },
-  {
-    accessorKey: 'statusName',
-    header: 'Status',
-    cell: ({ row }) => <p>{row.getValue('statusName')}</p>,
-  },
-  {
-    id: 'actions',
-    cell: ({ row }) => {
-      const selectedTask = row.original;
-
-      console.log('selectedTask', selectedTask);
-      const deleteMutation = useTaskDeleteMutation();
-
-      const onDelete = ({ id }: { id: string }) => {
-        deleteMutation.mutate(id);
-      };
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="size-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDelete({ id: selectedTask.id })}>
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    accessorKey: 'status',
+    header: '상태',
   },
 ];
