@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "eslint": "eslint ./ --ext .ts,.tsx,.js,.jsx --fix"
+    "eslint": "eslint ./ --ext .ts,.tsx,.js,.jsx --fix",
+    "gen:types": "dotenv -- supabase gen types typescript --project-id $VITE_SUPABASE_URL --schema public > src/types/database.ts"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.0.4",
