@@ -1,8 +1,14 @@
 import { useDebounce } from '@uidotdev/usehooks';
+import { HelpCircle } from 'lucide-react';
 
 import { DropDownMenu } from '@/components/dropdown';
 import { PageSize } from '@/components/pageSize';
 import { Search } from '@/components/search';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
 import { useGetInventoryInspection } from '@/hooks/useGetInventoryInspection';
 import { useLogin } from '@/hooks/useLogin';
 import { usePagination } from '@/hooks/usePagination';
@@ -15,6 +21,8 @@ export function Dashboard() {
   const { pagination, onPaginationChange, onPageSizeChange } = usePagination();
   const { search, onSearchChange } = useSearchCondition();
   const debouncedSearch = useDebounce(search, 300);
+
+  console.log('debouncedSearch', debouncedSearch);
 
   const stockList = useGetInventoryInspection({
     page: pagination.pageIndex,
@@ -34,8 +42,26 @@ export function Dashboard() {
           </header>
           <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
             <div className="rounded-lg border p-2 shadow-sm">
-              <div className="flex gap-3 p-4">
-                <Search search={search} onSearchChange={onSearchChange} />
+              <div className="flex justify-end gap-3 p-4">
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <Search search={search} onSearchChange={onSearchChange} />
+                  </HoverCardTrigger>
+                  <HoverCardContent>
+                    <div className="flex items-start space-x-3">
+                      <HelpCircle className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+                      <div>
+                        <h4 className="mb-1 text-sm font-semibold">
+                          검색 도움말
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          화주사명, 점검 코드, 점검명으로 검색이 가능해요.
+                        </p>
+                      </div>
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+
                 <PageSize
                   pageSize={pagination.pageSize}
                   onPageSizeChange={onPageSizeChange}

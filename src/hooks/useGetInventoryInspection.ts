@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { QueryFunctionContext } from '@tanstack/react-query';
 import camelcaseKeys from 'camelcase-keys';
 
@@ -68,5 +68,6 @@ export const useGetInventoryInspection = ({ page, size, search }: Props) => {
       search,
     }),
     queryFn: getInventoryInspection,
+    placeholderData: keepPreviousData,
   });
 };
