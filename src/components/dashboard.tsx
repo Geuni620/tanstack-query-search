@@ -1,14 +1,12 @@
 import { useDebounce } from '@uidotdev/usehooks';
 
-import { DialogComponents as Dialog } from '@/components/dialog';
 import { DropDownMenu } from '@/components/dropdown';
-import { HomeIcon, Package2Icon } from '@/components/icons';
 import { PageSize } from '@/components/pageSize';
 import { Search } from '@/components/search';
+import { useGetInventoryInspection } from '@/hooks/useGetInventoryInspection';
 import { useLogin } from '@/hooks/useLogin';
 import { usePagination } from '@/hooks/usePagination';
 import { useSearchCondition } from '@/hooks/useSearchCondition';
-import { useTaskGetQuery } from '@/hooks/useTaskGetQuery';
 import { columns } from '@/lib/table/columns';
 import { DataTable } from '@/lib/table/data-table';
 
@@ -18,13 +16,15 @@ export function Dashboard() {
   const { search, onSearchChange } = useSearchCondition();
   const debouncedSearch = useDebounce(search, 300);
 
-  const tasks = useTaskGetQuery({
+  const stockList = useGetInventoryInspection({
     page: pagination.pageIndex,
     size: pagination.pageSize,
     search: debouncedSearch,
   });
 
-  if (tasks.data)
+  console.log('stockList', stockList.data);
+
+  if (stockList.data)
     return (
       <div className="w-full">
         <div className="flex flex-col">
@@ -34,7 +34,7 @@ export function Dashboard() {
             </div>
             <DropDownMenu onLogout={onLogoutClick} />
           </header>
-          <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
+          {/* <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
             <div className="rounded-lg border p-2 shadow-sm">
               <div className="flex gap-3 p-4">
                 <Search search={search} onSearchChange={onSearchChange} />
@@ -44,14 +44,14 @@ export function Dashboard() {
                 />
               </div>
               <DataTable
-                data={tasks.data.result}
-                total={tasks.data.count ?? 0}
+                data={stockList.data}
+                total={stockList.data.count ?? 0}
                 columns={columns}
                 pagination={pagination}
                 onPaginationChange={onPaginationChange}
               />
             </div>
-          </main>
+          </main> */}
         </div>
       </div>
     );
