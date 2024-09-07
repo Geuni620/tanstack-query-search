@@ -39,7 +39,8 @@ const getInventoryInspection = async ({
   const query = supabase
     .from(INVENTORY_INSPECTION)
     .select('*', { count: 'exact' })
-    .range(start, end);
+    .range(start, end)
+    .order('id', { ascending: true });
 
   if (search?.trim()) {
     const searchFields = ['client_name', 'inspection_code', 'inspection_name'];

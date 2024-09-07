@@ -33,10 +33,8 @@ export function Dashboard() {
   };
 
   useEffect(() => {
-    if (!stockList.data) {
-      stockList.refetch();
-    }
-  }, [stockList]);
+    stockList.refetch();
+  }, [stockList, pagination.pageIndex, pagination.pageSize]);
 
   if (stockList.data)
     return (
