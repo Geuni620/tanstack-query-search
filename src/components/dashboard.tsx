@@ -22,8 +22,6 @@ export function Dashboard() {
     search: debouncedSearch,
   });
 
-  console.log('stockList', stockList.data);
-
   if (stockList.data)
     return (
       <div className="w-full">

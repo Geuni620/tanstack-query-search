@@ -7,16 +7,27 @@ import {
   inventoryInspectionKeys,
 } from '@/hooks/queryKey';
 import type { Database } from '@/types/supabase';
+import type { SnakeToCamel } from '@/types/utils';
 import { supabase } from '@/utils/supabase';
+
+type InventoryInspection =
+  Database['public']['Tables']['tanstack_query_search']['Row'];
+type InventoryInspectionCamelCase = {
+  [K in keyof InventoryInspection as SnakeToCamel<
+    K & string
+  >]: InventoryInspection[K];
+};
+
+export type InventoryInspectionResponse = {
+  data: InventoryInspectionCamelCase[];
+  count: number | null;
+};
 
 const getInventoryInspection = async ({
   queryKey: [{ page, size, search }],
 }: QueryFunctionContext<
   ReturnType<typeof inventoryInspectionKeys.list>
->): Promise<{
-  data: Database['public']['Tables']['tanstack_query_search']['Row'][];
-  count: number | null;
-}> => {
+>): Promise<InventoryInspectionResponse> => {
   const start = page * size;
   const end = start + size - 1;
   const query = supabase
@@ -37,7 +48,10 @@ const getInventoryInspection = async ({
     throw new Error(error.message);
   }
 
-  return { data, count };
+  return {
+    data: data.map((item) => camelcaseKeys(item, { deep: true })),
+    count,
+  };
 };
 
 type Props = {
@@ -54,11 +68,5 @@ export const useGetInventoryInspection = ({ page, size, search }: Props) => {
       search,
     }),
     queryFn: getInventoryInspection,
-    select: ({ data, count }) => {
-      return {
-        data: data.map((item) => camelcaseKeys(item)),
-        count: count,
-      };
-    },
   });
 };
