@@ -1,7 +1,7 @@
 type props = {
   page: number;
   size: number;
-  search: string;
+  search?: string;
 };
 
 export const TASK = 'tasks_rls';
@@ -20,15 +20,16 @@ export const taskKeys = {
     ] as const,
 };
 
+type inventoryInspectionProps = Omit<props, 'search'>;
+
 export const inventoryInspectionKeys = {
   all: [{ inventoryInspection: INVENTORY_INSPECTION }] as const,
-  list: ({ page, size, search }: props) =>
+  list: ({ page, size }: inventoryInspectionProps) =>
     [
       {
         ...inventoryInspectionKeys.all[0],
         page,
         size,
-        search,
       },
     ] as const,
 };

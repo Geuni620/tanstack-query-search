@@ -1,5 +1,5 @@
-import { useDebounce } from '@uidotdev/usehooks';
 import { HelpCircle } from 'lucide-react';
+import { useEffect } from 'react';
 
 import { DropDownMenu } from '@/components/dropdown';
 import { PageSize } from '@/components/pageSize';
@@ -20,15 +20,23 @@ export function Dashboard() {
   const { onLogoutClick } = useLogin();
   const { pagination, onPaginationChange, onPageSizeChange } = usePagination();
   const { search, onSearchChange } = useSearchCondition();
-  const debouncedSearch = useDebounce(search, 300);
-
-  console.log('debouncedSearch', debouncedSearch);
 
   const stockList = useGetInventoryInspection({
     page: pagination.pageIndex,
     size: pagination.pageSize,
-    search: debouncedSearch,
+    search,
   });
+
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    stockList.refetch();
+  };
+
+  useEffect(() => {
+    if (!stockList.data) {
+      stockList.refetch();
+    }
+  }, [stockList]);
 
   if (stockList.data)
     return (
@@ -45,7 +53,9 @@ export function Dashboard() {
               <div className="flex justify-end gap-3 p-4">
                 <HoverCard>
                   <HoverCardTrigger>
-                    <Search search={search} onSearchChange={onSearchChange} />
+                    <form onSubmit={onSubmit}>
+                      <Search search={search} onSearchChange={onSearchChange} />
+                    </form>
                   </HoverCardTrigger>
                   <HoverCardContent>
                     <div className="flex items-start space-x-3">

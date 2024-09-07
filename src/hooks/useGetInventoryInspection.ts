@@ -1,5 +1,4 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { QueryFunctionContext } from '@tanstack/react-query';
 import camelcaseKeys from 'camelcase-keys';
 
 import {
@@ -23,11 +22,18 @@ export type InventoryInspectionResponse = {
   count: number | null;
 };
 
+type Params = {
+  queryKey: ReturnType<(typeof inventoryInspectionKeys)['list']>;
+  search: string;
+};
+
 const getInventoryInspection = async ({
-  queryKey: [{ page, size, search }],
-}: QueryFunctionContext<
-  ReturnType<typeof inventoryInspectionKeys.list>
->): Promise<InventoryInspectionResponse> => {
+  queryKey,
+  search,
+}: Params): Promise<InventoryInspectionResponse> => {
+  const [{ page, size }] = queryKey;
+  console.log('search', search);
+
   const start = page * size;
   const end = start + size - 1;
   const query = supabase
@@ -62,12 +68,13 @@ type Props = {
 
 export const useGetInventoryInspection = ({ page, size, search }: Props) => {
   return useQuery({
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: inventoryInspectionKeys.list({
       page,
       size,
-      search,
     }),
-    queryFn: getInventoryInspection,
+    queryFn: ({ queryKey }) => getInventoryInspection({ queryKey, search }),
     placeholderData: keepPreviousData,
+    enabled: false,
   });
 };
