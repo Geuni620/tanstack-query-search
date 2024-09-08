@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import camelcaseKeys from 'camelcase-keys';
+import { useSearchParams } from 'react-router-dom';
 
 import {
   INVENTORY_INSPECTION,
@@ -61,13 +62,13 @@ const getInventoryInspection = async ({
   };
 };
 
-type Props = {
-  page: number;
-  size: number;
-  search: string;
-};
+export const useGetInventoryInspection = () => {
+  const [searchParams] = useSearchParams();
 
-export const useGetInventoryInspection = ({ page, size, search }: Props) => {
+  const page = parseInt(searchParams.get('page') || '1', 10) - 1;
+  const size = parseInt(searchParams.get('size') || '20', 10);
+  const search = searchParams.get('search') || '';
+
   return useQuery({
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: inventoryInspectionKeys.list({

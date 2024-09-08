@@ -1,5 +1,4 @@
-// import { type PaginationState } from '@tanstack/react-table';
-import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 export type Pagination = {
   pageIndex: number;
@@ -9,23 +8,37 @@ export type Pagination = {
 export type OnChangeFn<T> = (updaterOrValue: T | ((prevState: T) => T)) => void;
 
 export const usePagination = () => {
-  const [pagination, setPagination] = useState<Pagination>({
-    pageIndex: 0,
-    pageSize: 20,
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pagination: Pagination = {
+    pageIndex: parseInt(searchParams.get('page') || '1', 10) - 1,
+    pageSize: parseInt(searchParams.get('size') || '20', 10),
+  };
+
+  const onPaginationChange: OnChangeFn<Pagination> = (updaterOrValue) => {
+    setSearchParams((prev) => {
+      const newPagination =
+        typeof updaterOrValue === 'function'
+          ? updaterOrValue(pagination)
+          : updaterOrValue;
+
+      prev.set('page', (newPagination.pageIndex + 1).toString()); // URL에는 1부터 시작하는 페이지 번호 저장
+      prev.set('size', newPagination.pageSize.toString());
+      return prev;
+    });
+  };
 
   const onPageSizeChange = (pageSize: number) => {
-    setPagination((prev) => {
-      return {
-        ...prev,
-        pageSize,
-      };
+    setSearchParams((prev) => {
+      prev.set('size', pageSize.toString());
+      prev.set('page', '1');
+
+      return prev;
     });
   };
 
   return {
     pagination,
-    onPaginationChange: setPagination,
+    onPaginationChange: onPaginationChange,
     onPageSizeChange: onPageSizeChange,
   };
 };
