@@ -1,5 +1,6 @@
 import { HelpCircle } from 'lucide-react';
 import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { DropDownMenu } from '@/components/dropdown';
 import { PageSize } from '@/components/pageSize';
@@ -20,12 +21,15 @@ export function Dashboard() {
   const { onLogoutClick } = useLogin();
   const { pagination, onPaginationChange, onPageSizeChange } = usePagination();
   const { search, onSearchChange } = useSearchCondition();
+  // const [searchParams, setSearchParams] = useSearchParams();
 
   const stockList = useGetInventoryInspection({
     page: pagination.pageIndex,
     size: pagination.pageSize,
     search,
   });
+
+  // console.log('searchParams', searchParams);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
