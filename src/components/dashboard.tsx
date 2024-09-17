@@ -1,5 +1,5 @@
+import type { OnChangeFn, PaginationState } from '@tanstack/react-table';
 import { HelpCircle } from 'lucide-react';
-import { useEffect } from 'react';
 
 import { DropDownMenu } from '@/components/dropdown';
 import { PageSize } from '@/components/pageSize';
@@ -11,27 +11,57 @@ import {
 } from '@/components/ui/hover-card';
 import { useGetInventoryInspection } from '@/hooks/useGetInventoryInspection';
 import { useLogin } from '@/hooks/useLogin';
-import { usePagination } from '@/hooks/usePagination';
-import { useSearchCondition } from '@/hooks/useSearchCondition';
+import { useQueryParams } from '@/hooks/useQueryParams';
 import { columns } from '@/lib/table/columns';
 import { DataTable } from '@/lib/table/data-table';
 
 export function Dashboard() {
   const { onLogoutClick } = useLogin();
-  const { pagination, onPaginationChange, onPageSizeChange } = usePagination();
-  const { search, onSearchChange, onSearchSubmit } = useSearchCondition();
-
   const stockList = useGetInventoryInspection();
+  const [queryParams, setQueryParams] = useQueryParams();
+  const { page, size, search } = queryParams;
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSearchSubmit();
-    stockList.refetch();
+    const formData = new FormData(e.currentTarget);
+    const newSearch = formData.get('search')?.toString() || '';
+
+    setQueryParams((prevParams) => {
+      prevParams.set('page', '1');
+
+      if (newSearch) {
+        prevParams.set('search', newSearch);
+      } else {
+        prevParams.delete('search');
+      }
+
+      return prevParams;
+    });
   };
 
-  useEffect(() => {
-    stockList.refetch();
-  }, [stockList, pagination.pageIndex, pagination.pageSize]);
+  const onPageSizeChange = (newPageSize: number) => {
+    setQueryParams((prevParams) => {
+      prevParams.set('size', newPageSize.toString());
+      prevParams.set('page', '1');
+      return prevParams;
+    });
+  };
+
+  const onPaginationChange: OnChangeFn<PaginationState> = (updaterOrValue) => {
+    setQueryParams((prevParams) => {
+      const currentPagination = { pageIndex: page, pageSize: size };
+
+      const newPagination =
+        typeof updaterOrValue === 'function'
+          ? updaterOrValue(currentPagination)
+          : updaterOrValue;
+
+      prevParams.set('page', (newPagination.pageIndex + 1).toString());
+      prevParams.set('size', newPagination.pageSize.toString());
+
+      return prevParams;
+    });
+  };
 
   if (stockList.data)
     return (
@@ -39,7 +69,7 @@ export function Dashboard() {
         <div className="flex flex-col">
           <header className="flex h-14 items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40 lg:h-[60px]">
             <div className="flex-1">
-              <h1 className="text-lg font-semibold">Tanstack query Search</h1>
+              <h1 className="text-lg font-semibold">Tanstack Query Search</h1>
             </div>
             <DropDownMenu onLogout={onLogoutClick} />
           </header>
@@ -49,7 +79,7 @@ export function Dashboard() {
                 <HoverCard>
                   <HoverCardTrigger>
                     <form onSubmit={onSubmit}>
-                      <Search search={search} onSearchChange={onSearchChange} />
+                      <Search search={search} />
                     </form>
                   </HoverCardTrigger>
                   <HoverCardContent>
@@ -67,16 +97,13 @@ export function Dashboard() {
                   </HoverCardContent>
                 </HoverCard>
 
-                <PageSize
-                  pageSize={pagination.pageSize}
-                  onPageSizeChange={onPageSizeChange}
-                />
+                <PageSize pageSize={size} onPageSizeChange={onPageSizeChange} />
               </div>
               <DataTable
-                data={stockList.data.data}
-                total={stockList.data.count ?? 0}
+                data={stockList.data?.data}
+                total={stockList.data?.count ?? 0}
                 columns={columns}
-                pagination={pagination}
+                pagination={{ pageIndex: page, pageSize: size }}
                 onPaginationChange={onPaginationChange}
               />
             </div>
