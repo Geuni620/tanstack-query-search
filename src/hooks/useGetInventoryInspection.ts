@@ -73,6 +73,5 @@ export const useGetInventoryInspection = () => {
     }),
     queryFn: ({ queryKey }) => getInventoryInspection({ queryKey, search }),
     placeholderData: keepPreviousData,
-    enabled: false,
   });
 };
