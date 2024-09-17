@@ -1,11 +1,11 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import camelcaseKeys from 'camelcase-keys';
-import { useSearchParams } from 'react-router-dom';
 
 import {
   INVENTORY_INSPECTION,
   inventoryInspectionKeys,
 } from '@/hooks/queryKey';
+import { useQueryParams } from '@/hooks/useQueryParams';
 import type { Database } from '@/types/supabase';
 import type { SnakeToCamel } from '@/types/utils';
 import { supabase } from '@/utils/supabase';
@@ -63,11 +63,7 @@ const getInventoryInspection = async ({
 };
 
 export const useGetInventoryInspection = () => {
-  const [searchParams] = useSearchParams();
-
-  const page = parseInt(searchParams.get('page') || '1', 10) - 1;
-  const size = parseInt(searchParams.get('size') || '20', 10);
-  const search = searchParams.get('search') || '';
+  const [{ page, size, search }] = useQueryParams();
 
   return useQuery({
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
