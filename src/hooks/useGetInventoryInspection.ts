@@ -1,4 +1,8 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  QueryFunctionContext,
+  useQuery,
+} from '@tanstack/react-query';
 import camelcaseKeys from 'camelcase-keys';
 
 import {
@@ -22,17 +26,12 @@ export type InventoryInspectionResponse = {
   count: number | null;
 };
 
-type Params = {
-  queryKey: ReturnType<(typeof inventoryInspectionKeys)['list']>;
-  search: string;
-};
-
 const getInventoryInspection = async ({
   queryKey,
-  search,
-}: Params): Promise<InventoryInspectionResponse> => {
-  const [{ page, size }] = queryKey;
-  console.log('search', search);
+}: QueryFunctionContext<
+  ReturnType<typeof inventoryInspectionKeys.list>
+>): Promise<InventoryInspectionResponse> => {
+  const [{ page, size, search }] = queryKey;
 
   const start = page * size;
   const end = start + size - 1;
@@ -65,17 +64,23 @@ type Props = {
   page: number;
   size: number;
   search: string;
+  isSubmitted: boolean;
 };
 
-export const useGetInventoryInspection = ({ page, size, search }: Props) => {
+export const useGetInventoryInspection = ({
+  page,
+  size,
+  search,
+  isSubmitted,
+}: Props) => {
   return useQuery({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: inventoryInspectionKeys.list({
       page,
       size,
+      search,
     }),
-    queryFn: ({ queryKey }) => getInventoryInspection({ queryKey, search }),
+    queryFn: getInventoryInspection,
     placeholderData: keepPreviousData,
-    enabled: false,
+    enabled: isSubmitted,
   });
 };

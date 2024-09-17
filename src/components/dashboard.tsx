@@ -1,5 +1,6 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { HelpCircle } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { DropDownMenu } from '@/components/dropdown';
 import { PageSize } from '@/components/pageSize';
@@ -9,6 +10,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
+import { inventoryInspectionKeys } from '@/hooks/queryKey';
 import { useGetInventoryInspection } from '@/hooks/useGetInventoryInspection';
 import { useLogin } from '@/hooks/useLogin';
 import { usePagination } from '@/hooks/usePagination';
@@ -17,24 +19,36 @@ import { columns } from '@/lib/table/columns';
 import { DataTable } from '@/lib/table/data-table';
 
 export function Dashboard() {
+  const queryClient = useQueryClient();
   const { onLogoutClick } = useLogin();
   const { pagination, onPaginationChange, onPageSizeChange } = usePagination();
   const { search, onSearchChange } = useSearchCondition();
+  const [isSubmitted, setIsSubmitted] = useState(true); // 초기값을 true로 설정
 
   const stockList = useGetInventoryInspection({
     page: pagination.pageIndex,
     size: pagination.pageSize,
     search,
+    isSubmitted,
   });
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    stockList.refetch();
+    setIsSubmitted(true);
   };
 
   useEffect(() => {
-    stockList.refetch();
-  }, [stockList, pagination.pageIndex, pagination.pageSize]);
+    if (stockList.isSuccess && isSubmitted) {
+      setIsSubmitted(false);
+      queryClient.invalidateQueries({
+        queryKey: inventoryInspectionKeys.all,
+      });
+    }
+  }, [stockList.isSuccess, isSubmitted, queryClient]);
+
+  useEffect(() => {
+    setIsSubmitted(true);
+  }, [pagination.pageIndex, pagination.pageSize, search]);
 
   if (stockList.data)
     return (
