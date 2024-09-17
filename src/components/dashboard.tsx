@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { HelpCircle } from 'lucide-react';
 import { useEffect } from 'react';
 
@@ -9,7 +10,11 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
-import { useGetInventoryInspection } from '@/hooks/useGetInventoryInspection';
+import { inventoryInspectionKeys } from '@/hooks/queryKey';
+import {
+  getInventoryInspection,
+  useGetInventoryInspection,
+} from '@/hooks/useGetInventoryInspection';
 import { useLogin } from '@/hooks/useLogin';
 import { usePagination } from '@/hooks/usePagination';
 import { useSearchCondition } from '@/hooks/useSearchCondition';
@@ -17,6 +22,7 @@ import { columns } from '@/lib/table/columns';
 import { DataTable } from '@/lib/table/data-table';
 
 export function Dashboard() {
+  const queryClient = useQueryClient();
   const { onLogoutClick } = useLogin();
   const { pagination, onPaginationChange, onPageSizeChange } = usePagination();
   const { search, onSearchChange } = useSearchCondition();
@@ -27,14 +33,23 @@ export function Dashboard() {
     search,
   });
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    stockList.refetch();
+  const fetchData = async () => {
+    await queryClient.fetchQuery({
+      queryKey: inventoryInspectionKeys.list({
+        page: pagination.pageIndex,
+        size: pagination.pageSize,
+        search,
+      }),
+      queryFn: getInventoryInspection,
+    });
   };
 
-  useEffect(() => {
-    stockList.refetch();
-  }, [stockList, pagination.pageIndex, pagination.pageSize]);
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await fetchData();
+  };
+
+  console.log('stockList', stockList.isLoading, stockList.isFetching);
 
   if (stockList.data)
     return (

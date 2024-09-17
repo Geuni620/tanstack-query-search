@@ -20,16 +20,15 @@ export const taskKeys = {
     ] as const,
 };
 
-type inventoryInspectionProps = Omit<props, 'search'>;
-
 export const inventoryInspectionKeys = {
   all: [{ inventoryInspection: INVENTORY_INSPECTION }] as const,
-  list: ({ page, size }: inventoryInspectionProps) =>
+  list: ({ page, size, search }: props) =>
     [
       {
         ...inventoryInspectionKeys.all[0],
         page,
         size,
+        search,
       },
     ] as const,
 };
